@@ -37,7 +37,7 @@ export default function TaskPage() {
         localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
     }, [tasks]);
 
-    const handleAddTask = () => {
+    const handleAddTask = async () => {
         const newTask: Task = {
             id: Date.now(),
             title: taskTitle,
@@ -45,6 +45,23 @@ export default function TaskPage() {
             priority: taskPriority,
             completed: false,
         };
+
+        try {
+            const res = await fetch('http://localhost:3001/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newTask),
+            });
+
+            if (!res.ok) 
+                throw new Error('サーバーエラー');
+            const data = await res.json();
+            console.log('サーバー応答:', data);
+        } catch (err) {
+            console.error('送信エラー:', err);
+        }
         setTasks((prev) => [...tasks, newTask]);
 
         //入力リセット
